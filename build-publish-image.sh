@@ -7,7 +7,7 @@ set -eu
 source "$(dirname "$0")/lib.sh"
 
 function usage() {
-  echo "Usage: $0 <galaxy-app|ubuntu> [build args...]"
+  echo "Usage: $0 <galaxy-app|ubuntu> <remote> [build args...]"
   echo "Run \"docker build --help\" to look up build command arguments."
   exit 1
 }
@@ -16,18 +16,22 @@ if [[ $# -lt 1 ]]; then
   usage
 fi
 
-account="meteor"
 repo="$1"
-args="${*:2}"
+remote="$2"
+args="${*:3}"
 
 if [ -z "${repo}" ]; then
   usage
 fi
 
+if [ -z "${remote}" ]; then
+  usage
+fi
+
 tag=$(compute_tag)
-echo "repo=${repo} tag=${tag}"
+echo "repo=${repo} remote=${remote} tag=${tag}"
 
 cd "${repo}"
 set -x
-docker build -t "${account}/${repo}:${tag}" ${args} .
-docker push "${account}/${repo}:${tag}"
+docker build -t "${remote}:${tag}" ${args} .
+docker push "${remote}:${tag}"
